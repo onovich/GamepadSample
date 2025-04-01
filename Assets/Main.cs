@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.DualShock;
+using UnityEngine.InputSystem.Utilities;
 using UnityEngine.InputSystem.XInput;
 
 public class Main : MonoBehaviour {
@@ -9,10 +11,42 @@ public class Main : MonoBehaviour {
     [SerializeField] MainPanel mainPanel;
 
     void Start() {
-        RefreshGamepadInfo();
+        RefreshControllerInfo(null);
     }
 
-    void RefreshGamepadInfo() {
+    void Update() {
+        var gamepad = Gamepad.current;
+        if (gamepad == null) return; // 没有连接手柄时退出
+        foreach (var button in gamepad.allControls) {
+            if (button is ButtonControl btn && btn.wasPressedThisFrame) {
+                string keyPath = button.path;
+                RefreshControllerInfo(keyPath);
+                break;
+            }
+        }
+
+        if (Keyboard.current != null) {
+            foreach (var key in Keyboard.current.allKeys) {
+                if (key.wasPressedThisFrame) {
+                    string keyPath = key.path;
+                    RefreshControllerInfo(keyPath);
+                    break;
+                }
+            }
+        }
+
+        var mouse = Mouse.current;
+        if (mouse != null) {
+            foreach (var control in mouse.allControls) {
+                if (control is ButtonControl button && button.wasPressedThisFrame) {
+                    RefreshControllerInfo(button.path);
+                    break;
+                }
+            }
+        }
+    }
+
+    void RefreshControllerInfo(string keyPath) {
         bool isKeyboard = Keyboard.current != null;
         bool isMouse = Mouse.current != null;
         bool isGamepad = Gamepad.current != null;
@@ -44,12 +78,19 @@ public class Main : MonoBehaviour {
         } else {
             mainPanel.SetGamepadName("No Gamepad Connected");
         }
+
         mainPanel.SetIsXBoxByName(isXBoxByName);
         mainPanel.SetIsPS4ByName(isPS4ByName);
         mainPanel.SetIsPS5ByName(isPS5ByName);
         mainPanel.SetIsXBoxByType(isXBoxByType);
         mainPanel.SetIsPS4ByType(isPS4ByType);
         mainPanel.SetIsPS5ByType(isPS5ByType);
+
+        if (keyPath == null) {
+            keyPath = "No Key Pressed";
+        } else {
+            mainPanel.SetKeyPath(keyPath);
+        }
     }
 
 }

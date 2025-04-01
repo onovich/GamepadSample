@@ -13,6 +13,7 @@ public class MainPanel : MonoBehaviour {
     [SerializeField] Text text_isXBoxByType;
     [SerializeField] Text text_isPS4ByType;
     [SerializeField] Text text_isPS5ByType;
+    [SerializeField] Text text_keyPath;
 
     public void SetIsMouse(bool value) {
         text_isMouse.text = value.ToString();
@@ -101,6 +102,15 @@ public class MainPanel : MonoBehaviour {
             text_isPS5ByType.color = Color.yellow;
         } else {
             text_isPS5ByType.color = Color.grey;
+        }
+    }
+
+    public void SetKeyPath(string value) {
+        text_keyPath.text = value;
+        if (value == "No Key Pressed") {
+            text_keyPath.color = Color.red;
+        } else {
+            text_keyPath.color = Color.white;
         }
     }
 
